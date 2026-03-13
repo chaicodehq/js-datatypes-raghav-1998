@@ -41,5 +41,63 @@
  *   // => { name: "Priya", totalMarks: 63, percentage: 31.5, grade: "F", ... }
  */
 export function generateReportCard(student) {
-  // Your code here
+  if (
+    typeof student !== "object" ||
+    student === null ||
+    typeof student.name !== "string" ||
+    student.name.trim() === "" ||
+    typeof student.marks !== "object" ||
+    student.marks === null
+  ) return null;
+
+  const entries = Object.entries(student.marks);
+  if (entries.length === 0) return null;
+
+  // Validate marks
+  for (const [, mark] of entries) {
+    if (!Number.isFinite(mark) || mark < 0 || mark > 100) return null;
+  }
+
+  const subjectCount = entries.length;
+
+  const totalMarks = entries.reduce((sum, [, mark]) => sum + mark, 0);
+
+  const percentage = parseFloat(
+    ((totalMarks / (subjectCount * 100)) * 100).toFixed(2)
+  );
+
+  const highestSubject = entries.reduce((max, curr) =>
+    curr[1] > max[1] ? curr : max
+  )[0];
+
+  const lowestSubject = entries.reduce((min, curr) =>
+    curr[1] < min[1] ? curr : min
+  )[0];
+
+  const passedSubjects = entries
+    .filter(([, mark]) => mark >= 40)
+    .map(([subject]) => subject);
+
+  const failedSubjects = entries
+    .filter(([, mark]) => mark < 40)
+    .map(([subject]) => subject);
+
+  let grade =
+    percentage >= 90 ? "A+" :
+    percentage >= 80 ? "A" :
+    percentage >= 70 ? "B" :
+    percentage >= 60 ? "C" :
+    percentage >= 40 ? "D" : "F";
+
+  return {
+    name: student.name,
+    totalMarks,
+    percentage,
+    grade,
+    highestSubject,
+    lowestSubject,
+    passedSubjects,
+    failedSubjects,
+    subjectCount
+  };
 }
